@@ -1,12 +1,12 @@
 import time
-from random import choice
+import random
 from unicodedata import name
 
 class Card:
 
     values = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
 
-    def __init__(self):
+    def __init__(self, show=True):
         self.name = random.choice(Card.values)
         if(self.name == 'J' or self.name == 'Q' or self.name == 'K'):
             self.value = 10
@@ -14,14 +14,27 @@ class Card:
             self.value = 11
         else:
             self.value = name
-        self.show = False
+        self.show = show
 
 menu_option = 0
 
+def get_value(card1, card2):
+    pass
 
 def play(n):
     for i in range(n):
-        print("Game {}".format(i+1))
+        print("\nGame number {}".format(i+1))
+        #Player cards are shown
+        your_cards = [Card(), Card()]
+        #One dealer card is shown and the other is not
+        d_cards = [Card(), Card(False)]
+        print("Dealer giving cards...\n")
+        time.sleep(1.5)
+        print("Dealer cards are: ", end="")
+        print("{} and [Secret card]\n\n".format(d_cards[0].name))
+        print("Your cards are: ", end="")
+        print("{} and {}".format(your_cards[0].name, your_cards[1].name))
+        print("Hint: your current value is {}".format(get_value(your_cards[0], your_cards[1])))
 
 #Function to say goodbye to our player
 def goodbye():
