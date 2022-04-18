@@ -22,8 +22,8 @@ class Card:
 
 menu_option = 0
 
-def dealer_play():
-    pass
+def current_results(dealer, player):
+    return "\n Dealer: {d}\n{name} {p}\n\n".format(d = dealer, name=player_name, p=player)
 
 def play_submenu():
     option = 0
@@ -58,6 +58,18 @@ def get_value(cards):
             total -= 10
     return total
 
+def play_dealer_cards(cards):
+    dealer_value = get_value(cards)
+    print("Dealer cards are: {} and {}".format(cards[0].name, cards[1].name))
+    print("A value of {}".format(dealer_value))
+    if(dealer_value >= 17):
+        print("Dealer stands.")
+        return cards
+    else:
+        print("Dealer hits.")
+        cards.append(Card())
+    
+
 def play_your_cards(cards):
     not_finished = True
     while(get_value(cards) < 21):
@@ -67,13 +79,16 @@ def play_your_cards(cards):
             print("Your new card is {}".format(cards[-1].name))
             print("Total value is {}".format(get_value(cards)))
             if(get_value(cards)>21):
-                print("You bust!")
                 break
         else:
             print("Fine, you stand with {}".format(get_value(cards)))
             break
+    return cards
 
 def play(n):
+    d_wins = 0
+    your_wins = 0
+    ties = 0
     for i in range(n):
         print("\nGame number {}".format(i+1))
         #Player cards are shown
@@ -85,11 +100,31 @@ def play(n):
         time.sleep(1.5)
         print("Dealer cards are: {} and [Secret card]\n\n".format(d_cards[0].name))
         print("Your cards are: {} and {}".format(your_cards[0].name, your_cards[1].name))
+        #Checamos si ya acabó el juego
+        if(get_value(d_cards) == 21 and get_value(your_cards) == 21):
+            print("Dealer and {} have 21, push".format(player_name))
+            ties += 1
+            continue
+        elif(get_value(d_cards) == 21):
+            print("Dealer has 21, you lose")
+            d_wins += 1
+            continue
+        elif(get_value(your_cards) == 21):
+            print("You have 21, you win")
+            your_wins += 1
+            continue
         print("Hint: your current value is {}\n".format(get_value(your_cards)))
         #The list of cards updates if you hit, if not it returns the same list
         your_cards = play_your_cards(your_cards)
+        
+        #Checamos si el jugador ya perdió o ganó
+        if(get_value(your_cards) > 21):
+            print("You bust!")
+            d_wins += 1
+            continue
+
         #Dealer plays depending on the game it has
-        dealer_play()
+        d_cards = play_dealer_cards(d_cards)
 
 
 #Function to say goodbye to our player
@@ -123,7 +158,7 @@ def menu():
     print("\nWell hello {}!".format(player_name))
     print("Welcome to the Terminal Blackjack game\n")
     while menu_option != 4:
-        print("Type the number of what you want to do")
+        print("\nType the number of what you want to do")
         print("1. Play\n2. Print Instructions\n3. Credits\n4. Exit game")
         menu_option = input()
         try:
@@ -134,9 +169,11 @@ def menu():
         
         if(menu_option == 1):
             
-            n = input("How many times would you like to play against the computer?\n")
+            n = input("How many times would you like to play against the computer? (Maximum games: 10)\n")
             while(type(n) != int):
                 n = int(n)
+            if(n > 10):
+                n = 10
             play(n)
         elif(menu_option == 2):
             instructions()
