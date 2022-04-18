@@ -13,13 +13,65 @@ class Card:
         elif(self.name == 'A'):
             self.value = 11
         else:
-            self.value = name
+            self.value = self.name
         self.show = show
+    
+    def __repr__(self):
+        description = "This is a {name} card with a value of {value}".format(name = self.name, value = self.value)
+        return description
 
 menu_option = 0
 
-def get_value(card1, card2):
+def dealer_play():
     pass
+
+def play_submenu():
+    option = 0
+    while(option != 1 and option != 2):
+        print("\nWhat will you do?")
+        print("1. Hit\n2. Stand")
+        option = input()
+        try:
+            option = int(option)
+        except ValueError:
+            print("You have to write number 1 or 2")
+            continue
+    return option
+
+def there_is_name(cards, name):
+    for c in cards:
+        if(c.name == name):
+            #There is an A in your cards
+            return True
+    #There is no A in your cards
+    return False
+
+def get_value(cards):
+    total = 0
+    if(there_is_name(cards, 'A') == False):
+        for c in cards:
+            total += c.value
+    else:
+        for c in cards:
+            total += c.value
+        if(total > 21):
+            total -= 10
+    return total
+
+def play_your_cards(cards):
+    not_finished = True
+    while(get_value(cards) < 21):
+        opt = play_submenu()
+        if(opt == 1):
+            cards.append(Card())
+            print("Your new card is {}".format(cards[-1].name))
+            print("Total value is {}".format(get_value(cards)))
+            if(get_value(cards)>21):
+                print("You bust!")
+                break
+        else:
+            print("Fine, you stand with {}".format(get_value(cards)))
+            break
 
 def play(n):
     for i in range(n):
@@ -28,20 +80,24 @@ def play(n):
         your_cards = [Card(), Card()]
         #One dealer card is shown and the other is not
         d_cards = [Card(), Card(False)]
+        #Some special effects :p
         print("Dealer giving cards...\n")
         time.sleep(1.5)
-        print("Dealer cards are: ", end="")
-        print("{} and [Secret card]\n\n".format(d_cards[0].name))
-        print("Your cards are: ", end="")
-        print("{} and {}".format(your_cards[0].name, your_cards[1].name))
-        print("Hint: your current value is {}".format(get_value(your_cards[0], your_cards[1])))
+        print("Dealer cards are: {} and [Secret card]\n\n".format(d_cards[0].name))
+        print("Your cards are: {} and {}".format(your_cards[0].name, your_cards[1].name))
+        print("Hint: your current value is {}\n".format(get_value(your_cards)))
+        #The list of cards updates if you hit, if not it returns the same list
+        your_cards = play_your_cards(your_cards)
+        #Dealer plays depending on the game it has
+        dealer_play()
+
 
 #Function to say goodbye to our player
 def goodbye():
     print("Thank you for playing {}!".format(player_name))
     print("This program was developed by AdrianMReds")
     print("Github User: @AdrianMReds")
-    time.sleep(1.5)
+    time.sleep(1)
     exit()
 
 def instructions():
@@ -65,7 +121,7 @@ def menu():
     print("Hello stranger, what's your name?")
     player_name = input()
     print("\nWell hello {}!".format(player_name))
-    print("Welcome to the Terminal Blackjack game")
+    print("Welcome to the Terminal Blackjack game\n")
     while menu_option != 4:
         print("Type the number of what you want to do")
         print("1. Play\n2. Print Instructions\n3. Credits\n4. Exit game")
