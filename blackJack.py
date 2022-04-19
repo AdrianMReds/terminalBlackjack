@@ -22,8 +22,8 @@ class Card:
 
 menu_option = 0
 
-def current_results(dealer, player):
-    return "\n Dealer: {d}\n{name} {p}\n\n".format(d = dealer, name=player_name, p=player)
+def results(dealer, player):
+    return "\nDealer: {d}\n{name}: {p}\n\n".format(d = dealer, name=player_name, p=player)
 
 def play_submenu():
     option = 0
@@ -60,15 +60,25 @@ def get_value(cards):
 
 def play_dealer_cards(cards):
     dealer_value = get_value(cards)
-    print("Dealer cards are: {} and {}".format(cards[0].name, cards[1].name))
-    print("A value of {}".format(dealer_value))
-    if(dealer_value >= 17):
-        print("Dealer stands.")
-        return cards
-    else:
+    print("\nDealer cards are: {} and {}".format(cards[0].name, cards[1].name))
+    print("A value of {}\n".format(dealer_value))
+    while(dealer_value < 17):
         print("Dealer hits.")
-        cards.append(Card())
-    
+        time.sleep(1)
+        new_card = Card()
+        cards.append(new_card)
+        dealer_value += new_card.value
+        print("New card is {}".format(new_card.name))
+        time.sleep(0.5)
+        print("Total value is {}\n".format(dealer_value))
+        if(dealer_value >= 17): 
+            if(dealer_value > 21):
+                print("Dealer busts!")
+            else:
+                print("Dealer stands.")
+            return cards
+        else: continue
+    return cards
 
 def play_your_cards(cards):
     not_finished = True
@@ -95,36 +105,85 @@ def play(n):
         your_cards = [Card(), Card()]
         #One dealer card is shown and the other is not
         d_cards = [Card(), Card(False)]
+        
         #Some special effects :p
+        print("Dealer mixing cards...")
+        time.sleep(1)
         print("Dealer giving cards...\n")
-        time.sleep(1.5)
+        time.sleep(2)
+        
         print("Dealer cards are: {} and [Secret card]\n\n".format(d_cards[0].name))
+        time.sleep(1)
         print("Your cards are: {} and {}".format(your_cards[0].name, your_cards[1].name))
-        #Checamos si ya acabó el juego
+        #We check if there's a tie
         if(get_value(d_cards) == 21 and get_value(your_cards) == 21):
             print("Dealer and {} have 21, push".format(player_name))
             ties += 1
+            time.sleep(2)
             continue
+        #We check if dealer has 21 and wins
         elif(get_value(d_cards) == 21):
             print("Dealer has 21, you lose")
             d_wins += 1
+            time.sleep(2)
             continue
+        #We check if player has 21 
         elif(get_value(your_cards) == 21):
-            print("You have 21, you win")
-            your_wins += 1
+            #We still have to check if dealer doesn't have 21
+            d_cards = play_dealer_cards(d_cards)
+            if(get_value(d_cards) != 21):
+                print("You have 21, you win")
+                your_wins += 1
+                time.sleep(2)
+            else:
+                print("Dealer and {} have 21, push".format(player_name))
+                ties += 1
+                time.sleep(2)
             continue
         print("Hint: your current value is {}\n".format(get_value(your_cards)))
+        time.sleep(1)
         #The list of cards updates if you hit, if not it returns the same list
         your_cards = play_your_cards(your_cards)
         
-        #Checamos si el jugador ya perdió o ganó
+        #We check if playr already lost or won
         if(get_value(your_cards) > 21):
             print("You bust!")
             d_wins += 1
+            time.sleep(2)
+            continue
+        #We check if after hitting, player got 21
+        elif(get_value(your_cards) == 21):
+            #We still have to check if dealer doesn't have 21
+            d_cards = play_dealer_cards(d_cards)
+            if(get_value(d_cards) != 21):
+                print("You have 21, you win")
+                your_wins += 1
+                time.sleep(2)
+            else:
+                print("Dealer and {} have 21, push".format(player_name))
+                ties += 1
+                time.sleep(2)
             continue
 
         #Dealer plays depending on the game it has
         d_cards = play_dealer_cards(d_cards)
+
+        if(get_value(d_cards) > 21):
+            your_wins += 1
+            time.sleep(2)
+        elif(get_value(d_cards) > get_value(your_cards)):
+            print("Dealer wins with a value of {}".format(get_value(d_cards)))
+            d_wins += 1
+            time.sleep(2)
+        elif(get_value(d_cards) < get_value(your_cards)):
+            print("You win with a value of {}!".format(get_value(your_cards)))
+            your_wins += 1
+        elif(get_value(d_cards) == get_value(your_cards)):
+            print("Dealer and {name} have {val}, push".format(name = player_name, val = get_value(d_cards)))
+            ties += 1
+            time.sleep(2)
+    print(results(d_wins, your_wins))
+
 
 
 #Function to say goodbye to our player
